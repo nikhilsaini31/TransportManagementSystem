@@ -5,6 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -25,13 +26,14 @@ public class User {
 	@Column(nullable = false)
 	private String secondName;
 	
-	@Column(nullable = false,unique = true)
+	@Column(nullable = false,unique = true)	
 	private String email;
 	
 	@Column(nullable = false)
+	@NotNull(message = "Password cannot be null")
 	private String password;
 	
-	@Column(nullable = false)
+	@Column(nullable = false)	
 	private Long   phone;
 	
 	@Column(nullable = false)

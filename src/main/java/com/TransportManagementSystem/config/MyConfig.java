@@ -12,6 +12,8 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import com.TransportManagementSystem.security.CustomUserDetailService;
 import com.TransportManagementSystem.security.JwtAuthenticationEntryPoint;
@@ -52,7 +54,7 @@ public class MyConfig {
                 .authorizeHttpRequests(request -> request
                 		        .requestMatchers("/api/v1/auth/**").permitAll()
                                 .requestMatchers("/admin/**").hasRole("ADMIN")
-                                .requestMatchers("/user/**").hasRole("USER")
+                                .requestMatchers("/user/**").hasAnyRole("USER","ADMIN")
                                 .anyRequest().authenticated()
                 )
                 .exceptionHandling(ex -> ex
@@ -76,3 +78,19 @@ public class MyConfig {
 	}
 
 }
+
+
+@Configuration
+class WebConfig implements WebMvcConfigurer {
+
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/**")
+        		.allowedOrigins("*")
+                .allowedOrigins("http://localhost:8181", "http://localhost:55720") // Replace with your frontend's origin
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                .allowedHeaders("*")
+                .allowCredentials(true);
+    }
+}
+

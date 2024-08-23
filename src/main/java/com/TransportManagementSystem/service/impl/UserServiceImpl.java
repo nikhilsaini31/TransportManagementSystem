@@ -48,10 +48,20 @@ public class UserServiceImpl implements UserService{
 		
 		User oldUser = this.userRepo.findById(id).orElseThrow(()->new ResourceNotFoundException("user", "id", id));
 		
+		
+		if (user.getPassword() == null || user.getPassword().isEmpty()) {
+            user.setPassword(oldUser.getPassword());
+        } else {
+            // Encode the new password
+            String encodedPassword = passwordEncoder.encode(user.getPassword());
+            user.setPassword(encodedPassword);
+        }
+		
+		
 		oldUser.setFirstName(user.getFirstName());
 		oldUser.setSecondName(user.getSecondName());
 		oldUser.setEmail(user.getEmail());
-		oldUser.setPassword(user.getPassword());
+		oldUser.setPassword(this.passwordEncoder.encode(user.getPassword()));
 		oldUser.setPhone(user.getPhone());
 		oldUser.setAddress(user.getAddress());
 		oldUser.setCity(user.getCity());

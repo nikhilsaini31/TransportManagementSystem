@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.TransportManagementSystem.Entity.User;
+import com.TransportManagementSystem.Repo.UserRepository;
 import com.TransportManagementSystem.exception.loginException;
 import com.TransportManagementSystem.payload.JwtAuthRequest;
 import com.TransportManagementSystem.payload.JwtAuthResponse;
@@ -35,19 +36,29 @@ public class AuthenticationController {
 
 	@Autowired
 	private UserService userService;
+	
+	@Autowired
+	private UserRepository userRepository;
 
 	@PostMapping("/login")
 	public ResponseEntity<JwtAuthResponse> createToken(@RequestBody JwtAuthRequest jwtAuthRequest) throws Exception {
 
 		this.authenticate(jwtAuthRequest.getUsername(), jwtAuthRequest.getPassword());
-
+		
 		UserDetails userByUsername = this.userDetailsService.loadUserByUsername(jwtAuthRequest.getUsername());
+		
+	    String token = this.jwtTokenHelper.generateToken(userByUsername);
 
-		String token = this.jwtTokenHelper.generateToken(userByUsername);
-
+	   // get user for getting user role
+	    User user = this.userRepository.findByEmail(userByUsername.getUsername()).orElseThrow(()-> new RuntimeException("user not found"));
+       // System.out.println("_______ = "+user);
+	    
+	    String role = user.getRole();
+	    
 		JwtAuthResponse jwtAuthResponse = new JwtAuthResponse();
 		jwtAuthResponse.setToken(token);
-
+		jwtAuthResponse.setRole(role);
+			
 		return new ResponseEntity<JwtAuthResponse>(jwtAuthResponse, HttpStatus.OK);
 
 	}
@@ -56,6 +67,7 @@ public class AuthenticationController {
 
 		UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(username,
 				password);
+		
 
 		try {
 
